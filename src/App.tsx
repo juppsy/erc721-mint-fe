@@ -16,7 +16,7 @@ import { getChainData } from './helpers/utilities';
 
 import { ERC721_MINT_NFT } from './constants';
 import { getContract } from './helpers/ethers';
-import MyNFT2 from './constants/abis/MyNFT2.json';
+import RinkebyNFT from './constants/abis/RinkebyNFT.json';
 
 const SLayout = styled.div`
 	position: relative;
@@ -80,7 +80,6 @@ interface IAppState {
 	result: any | null;
 	mintContract: any | null;
 	info: any | null;
-	addressTo: string;
 	uri: string;
 }
 
@@ -94,7 +93,6 @@ const INITIAL_STATE: IAppState = {
 	result: null,
 	mintContract: null,
 	info: null,
-	addressTo: '',
 	uri: '',
 };
 
@@ -136,7 +134,7 @@ class App extends React.Component<any, any> {
 
 		const mintContract = getContract(
 			ERC721_MINT_NFT,
-			MyNFT2.abi,
+			RinkebyNFT.abi,
 			library,
 			address
 		);
@@ -219,10 +217,6 @@ class App extends React.Component<any, any> {
 		this.setState({ ...INITIAL_STATE });
 	};
 
-	public handleAddressToChange = (e: any) => {
-		this.setState({ addressTo: e.target.value });
-	};
-
 	public handleUriChange = (e: any) => {
 		this.setState({ uri: e.target.value });
 	};
@@ -231,14 +225,8 @@ class App extends React.Component<any, any> {
 		e.preventDefault();
 		const { mintContract } = this.state;
 
-		// tslint:disable-next-line:no-console
-		console.log(this.state.addressTo);
-
 		await this.setState({ fetching: true });
-		const transaction = await mintContract.safeMint(
-			this.state.addressTo,
-			this.state.uri
-		);
+		const transaction = await mintContract.safeMint(this.state.uri);
 
 		await this.setState({ transactionHash: transaction.hash });
 
@@ -249,14 +237,7 @@ class App extends React.Component<any, any> {
 	};
 
 	public render = () => {
-		const {
-			address,
-			connected,
-			chainId,
-			fetching,
-			addressTo,
-			uri,
-		} = this.state;
+		const { address, connected, chainId, fetching, uri } = this.state;
 		return (
 			<SLayout>
 				<Column maxWidth={1000} spanHeight>
@@ -281,13 +262,6 @@ class App extends React.Component<any, any> {
 								{this.state.connected && (
 									<SContainer>
 										<Form>
-											<Input
-												name='addressTo'
-												type='text'
-												placeholder='Address to send to:'
-												value={addressTo}
-												onChange={this.handleAddressToChange}
-											/>
 											<Input
 												name='uri'
 												type='text'
